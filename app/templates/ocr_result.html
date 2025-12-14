@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docuflex - OCR Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Add Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .result-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            animation: fadeIn 0.8s ease;
+        }
+        
+        .file-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .file-icon {
+            font-size: 2em;
+            margin-right: 15px;
+            color: #3498db;
+        }
+        
+        .file-details h2 {
+            background: linear-gradient(to right, var(--primary-color), var(--accent-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        
+        .file-details p {
+            margin: 0;
+            color: #7f8c8d;
+        }
+        
+        .ocr-text {
+            position: relative;
+            margin: 30px 0;
+            border-left: 4px solid var(--primary-color);
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 500px;
+            overflow-y: auto;
+            line-height: 1.5;
+        }
+        
+        .ocr-text::before {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 100px;
+            height: 100px;
+            background: linear-gradient(135deg, transparent, rgba(67, 97, 238, 0.05));
+            border-radius: 0 8px 0 0;
+            z-index: 0;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 30px 0 20px;
+        }
+        
+        .action-button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            transform: scale(1);
+            transition: all 0.3s ease;
+        }
+        
+        .action-button:hover {
+            transform: scale(1.05) translateY(-3px);
+        }
+        
+        .action-button:active {
+            transform: scale(0.98);
+        }
+        
+        .copy-btn {
+            background-color: #2196F3;
+            color: white;
+        }
+        
+        .download-btn {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .speech-btn {
+            background-color: #FF9800;
+            color: white;
+        }
+        
+        .translate-btn {
+            background-color: #9C27B0;
+            color: white;
+        }
+        
+        .home-btn {
+            background-color: #9e9e9e;
+            color: white;
+        }
+        
+        .feature-panel {
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            display: none;
+        }
+        
+        .translate-panel select,
+        .speech-panel select {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .translated-text {
+            position: relative;
+            overflow: hidden;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            margin-top: 15px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .translated-text::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 30px;
+            background: linear-gradient(to bottom, transparent, white);
+            pointer-events: none;
+            opacity: 0.8;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            margin-right: 8px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error-message {
+            color: #d32f2f;
+            background-color: #ffebee;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 4px;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            font-weight: bold;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        .fa-pulse {
+            animation: pulse 1s infinite;
+        }
+        
+        /* Speech panel enhancements */
+        .speech-panel {
+            background: linear-gradient(to right, rgba(255, 152, 0, 0.05), rgba(255, 152, 0, 0.1));
+        }
+        
+        /* Translation panel enhancements */
+        .translate-panel {
+            background: linear-gradient(to right, rgba(156, 39, 176, 0.05), rgba(156, 39, 176, 0.1));
+        }
+        
+        /* Panel buttons */
+        .feature-panel .action-button {
+            margin-bottom: 0;
+        }
+        
+        /* Custom select styling */
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='gray' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position: right 8px center;
+            padding-right: 30px !important;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="/" class="navbar-brand">
+                    <i class="fas fa-file-alt text-primary"></i>
+                    <span>Docuflex</span>
+                </a>
+                <ul class="navbar-nav">
+                    <li><a href="/" class="nav-link active">Home</a></li>
+                    <li><a href="#" class="nav-link">Tools</a></li>
+                    <li><a href="#" class="nav-link">Documentation</a></li>
+                    <li><a href="#" class="btn btn-primary btn-sm">Get Started</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="card result-container">
+                <div class="result-header">
+                    <h2>OCR Results</h2>
+                    <p>Extracted text from <strong>{{ original_filename }}</strong></p>
+                </div>
+                
+                <!-- File info card -->
+                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded mb-6">
+                    <div class="file-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <div>
+                        <h4 class="mb-1">{{ original_filename }}</h4>
+                        <div class="badge badge-primary">OCR Completed</div>
+                    </div>
+                </div>
+                
+                <!-- Extracted text -->
+                <div class="mb-6">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i class="fas fa-align-left text-primary"></i>
+                        <h3 class="mb-0">Extracted Text</h3>
+                    </div>
+                    <div class="ocr-text" id="extractedText">{{ extracted_text }}</div>
+                </div>
+                
+                <!-- Action buttons -->
+                <div class="result-actions">
+                    <button onclick="copyToClipboard()" class="btn btn-primary">
+                        <i class="fas fa-copy"></i>
+                        Copy Text
+                    </button>
+                    
+                    <a href="{{ url_for('download_text', filename=text_filename) }}" class="btn btn-secondary">
+                        <i class="fas fa-download"></i>
+                        Download as TXT
+                    </a>
+                    
+                    <button onclick="toggleSpeechPanel()" class="btn btn-warning">
+                        <i class="fas fa-volume-up"></i>
+                        Text to Speech
+                    </button>
+                    
+                    <button onclick="toggleTranslatePanel()" class="btn btn-accent">
+                        <i class="fas fa-language"></i>
+                        Translate
+                    </button>
+                    
+                    <a href="{{ url_for('home') }}" class="btn btn-outline">
+                        <i class="fas fa-home"></i>
+                        Back to Home
+                    </a>
+                </div>
+                
+                <!-- Text-to-Speech Panel -->
+                <div id="speechPanel" class="feature-panel" style="display: none;">
+                    <div class="panel-header">
+                        <i class="fas fa-volume-up"></i>
+                        <span>Text to Speech</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="flex flex-wrap gap-4 items-center">
+                            <select id="speechVoice" class="form-select">
+                                <option value="">Default Voice</option>
+                            </select>
+                            <button onclick="speakText()" class="btn btn-warning btn-sm">
+                                <i class="fas fa-play"></i>
+                                Play
+                            </button>
+                            <button onclick="stopSpeech()" class="btn btn-outline btn-sm">
+                                <i class="fas fa-stop"></i>
+                                Stop
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Translation Panel -->
+                <div id="translatePanel" class="feature-panel" style="display: none;">
+                    <div class="panel-header">
+                        <i class="fas fa-language"></i>
+                        <span>Translate Text</span>
+                    </div>
+                    <div class="panel-content">
+                        <div class="flex flex-wrap gap-4 items-center">
+                            <select id="targetLanguage" class="form-select">
+                                <option value="es">Spanish</option>
+                                <option value="fr">French</option>
+                                <option value="de">German</option>
+                                <option value="it">Italian</option>
+                                <option value="pt">Portuguese</option>
+                                <option value="ru">Russian</option>
+                                <option value="zh">Chinese</option>
+                                <option value="ja">Japanese</option>
+                                <option value="ko">Korean</option>
+                                <option value="ar">Arabic</option>
+                                <option value="hi">Hindi</option>
+                            </select>
+                            <button onclick="translateText()" class="btn btn-accent btn-sm" id="translateButton">
+                                <i class="fas fa-exchange-alt"></i>
+                                Translate
+                            </button>
+                        </div>
+                        <div id="translationResult" class="translated-text" style="display: none;">
+                            <p>Translation will appear here...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h4 class="footer-title">Docuflex</h4>
+                    <p>A powerful document and image processing tool designed for simplicity and efficiency.</p>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/" class="footer-link">Home</a></li>
+                        <li><a href="#" class="footer-link">Tools</a></li>
+                        <li><a href="#" class="footer-link">Documentation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@docuflex.com" class="footer-link">support@docuflex.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Docuflex - Privacy-First Document Processing</p>
+                <p>All processing is done in real-time. No files are stored permanently.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Add animations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            animatePageElements();
+        });
+        
+        // Copy text to clipboard
+        function copyToClipboard() {
+            const text = document.getElementById('extractedText').textContent;
+            const textArea = document.createElement('textarea');
+            textArea.value = text;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textArea);
+            
+            // Show feedback with toast
+            showToast('Text copied to clipboard!', 'success');
+        }
+        
+        // Toast notification
+        function showToast(message, type = 'info') {
+            // Check if a toast already exists and remove it
+            const existingToast = document.querySelector('.toast');
+            if (existingToast) {
+                document.body.removeChild(existingToast);
+            }
+            
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            
+            // Choose icon based on type
+            let icon = 'info-circle';
+            if (type === 'success') icon = 'check-circle';
+            if (type === 'warning') icon = 'exclamation-circle';
+            if (type === 'error') icon = 'times-circle';
+            
+            toast.innerHTML = `
+                <div class="toast-icon">
+                    <i class="fas fa-${icon}"></i>
+                </div>
+                <div class="toast-content">
+                    <p class="toast-message">${message}</p>
+                </div>
+            `;
+            
+            // Add to document
+            document.body.appendChild(toast);
+            
+            // Show the toast
+            setTimeout(() => {
+                toast.classList.add('show');
+            }, 10);
+            
+            // Remove after delay
+            setTimeout(() => {
+                toast.classList.remove('show');
+                
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        document.body.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+        
+        // Text to Speech functionality
+        let speechSynthesis = window.speechSynthesis;
+        let speechUtterance = null;
+        
+        // Load available voices
+        function loadVoices() {
+            const voiceSelect = document.getElementById('speechVoice');
+            voiceSelect.innerHTML = '<option value="">Default Voice</option>';
+            
+            const voices = speechSynthesis.getVoices();
+            voices.forEach((voice, index) => {
+                const option = document.createElement('option');
+                option.value = index;
+                option.textContent = `${voice.name} (${voice.lang})`;
+                voiceSelect.appendChild(option);
+            });
+        }
+        
+        // Load voices when available
+        if (speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = loadVoices;
+        }
+        
+        // Initialize voices on page load
+        window.addEventListener('load', function() {
+            loadVoices();
+        });
+        
+        // Speak the extracted text
+        function speakText() {
+            if (speechSynthesis) {
+                // Stop any ongoing speech
+                stopSpeech();
+                
+                // Get the text to speak
+                const text = document.getElementById('extractedText').textContent;
+                
+                // Create a new utterance
+                speechUtterance = new SpeechSynthesisUtterance(text);
+                
+                // Set the selected voice if any
+                const voiceIndex = document.getElementById('speechVoice').value;
+                if (voiceIndex !== "") {
+                    const voices = speechSynthesis.getVoices();
+                    speechUtterance.voice = voices[voiceIndex];
+                }
+                
+                // Show speaking indicator
+                showToast('Speaking... Click Stop when finished.', 'info');
+                
+                // Find the play button and change its icon
+                const playButton = document.querySelector('button[onclick="speakText()"] i');
+                if (playButton) {
+                    playButton.className = 'fas fa-volume-up animate-pulse';
+                }
+                
+                // Speak the text
+                speechSynthesis.speak(speechUtterance);
+                
+                // Reset icon when done speaking
+                speechUtterance.onend = function() {
+                    if (playButton) {
+                        playButton.className = 'fas fa-play';
+                    }
+                    showToast('Finished speaking.', 'success');
+                };
+            } else {
+                showToast('Text-to-speech is not supported in your browser.', 'error');
+            }
+        }
+        
+        // Stop speech
+        function stopSpeech() {
+            if (speechSynthesis) {
+                speechSynthesis.cancel();
+                speechUtterance = null;
+                
+                // Reset play button icon
+                const playButton = document.querySelector('button[onclick="speakText()"] i');
+                if (playButton) {
+                    playButton.className = 'fas fa-play';
+                }
+                
+                showToast('Speech stopped.', 'info');
+            }
+        }
+        
+        // Toggle the speech panel
+        function toggleSpeechPanel() {
+            const panel = document.getElementById('speechPanel');
+            const translatePanel = document.getElementById('translatePanel');
+            
+            if (panel.style.display === 'block') {
+                slideUp(panel);
+            } else {
+                if (translatePanel.style.display === 'block') {
+                    slideUp(translatePanel);
+                }
+                panel.style.display = 'block';
+                slideDown(panel);
+            }
+        }
+        
+        // Toggle the translate panel
+        function toggleTranslatePanel() {
+            const panel = document.getElementById('translatePanel');
+            const speechPanel = document.getElementById('speechPanel');
+            
+            if (panel.style.display === 'block') {
+                slideUp(panel);
+            } else {
+                if (speechPanel.style.display === 'block') {
+                    slideUp(speechPanel);
+                }
+                panel.style.display = 'block';
+                slideDown(panel);
+            }
+        }
+        
+        // Function to translate text
+        function translateText() {
+            const text = document.getElementById('extractedText').textContent;
+            const targetLang = document.getElementById('targetLanguage').value;
+            const resultDiv = document.getElementById('translationResult');
+            const translateButton = document.getElementById('translateButton');
+            
+            // Disable button and show loading state
+            translateButton.disabled = true;
+            const buttonText = translateButton.innerHTML;
+            translateButton.innerHTML = `<span class="spinner"></span> Translating...`;
+            resultDiv.style.display = 'block';
+            resultDiv.innerHTML = `<div class="flex items-center gap-2 mb-4"><span class="spinner spinner-primary"></span> <p class="mb-0">Translating text to ${getLanguageName(targetLang)}...</p></div>`;
+            
+            // Call the translation API
+            fetch('/api/translate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: text,
+                    target_language: targetLang
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Re-enable button
+                translateButton.disabled = false;
+                translateButton.innerHTML = buttonText;
+                
+                if (data.success) {
+                    // Format and display the translated text
+                    resultDiv.innerHTML = `
+                        <div class="mb-3">
+                            <div class="badge badge-accent mb-2">Translated to ${getLanguageName(targetLang)}</div>
+                            <div>${data.translated_text}</div>
+                        </div>
+                    `;
+                    slideDown(resultDiv);
+                } else {
+                    // Show error message
+                    resultDiv.innerHTML = `
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i> 
+                            Translation failed: ${data.error || 'Unknown error'}
+                        </div>
+                        <p>Please try again or select a different language.</p>
+                    `;
+                }
+            })
+            .catch(error => {
+                // Re-enable button and show error
+                translateButton.disabled = false;
+                translateButton.innerHTML = buttonText;
+                
+                resultDiv.innerHTML = `
+                    <div class="error-message">
+                        <i class="fas fa-exclamation-circle"></i> 
+                        Error: ${error.message || 'Network or server error'}
+                    </div>
+                    <p>Please check your internet connection and try again.</p>
+                `;
+            });
+        }
+        
+        // Helper function to get language name from code
+        function getLanguageName(langCode) {
+            const languages = {
+                'es': 'Spanish',
+                'fr': 'French',
+                'de': 'German',
+                'it': 'Italian',
+                'pt': 'Portuguese',
+                'ru': 'Russian',
+                'zh': 'Chinese',
+                'ja': 'Japanese',
+                'ko': 'Korean',
+                'ar': 'Arabic',
+                'hi': 'Hindi'
+            };
+            
+            return languages[langCode] || langCode;
+        }
+        
+        // Animation functions
+        function slideDown(element) {
+            element.style.opacity = 0;
+            element.style.maxHeight = '0';
+            element.style.overflow = 'hidden';
+            element.style.transition = 'opacity 0.3s ease, max-height 0.5s ease';
+            
+            setTimeout(() => {
+                element.style.opacity = 1;
+                element.style.maxHeight = '1000px';
+            }, 10);
+        }
+        
+        function slideUp(element) {
+            element.style.opacity = 1;
+            element.style.maxHeight = '1000px';
+            element.style.overflow = 'hidden';
+            element.style.transition = 'opacity 0.3s ease, max-height 0.5s ease';
+            
+            element.style.opacity = 0;
+            element.style.maxHeight = '0';
+            
+            setTimeout(() => {
+                element.style.display = 'none';
+                element.style.maxHeight = '';
+                element.style.overflow = '';
+            }, 500);
+        }
+        
+        function animatePageElements() {
+            // Add entry animations to main elements
+            const elements = document.querySelectorAll('.result-container, .result-header, .ocr-text, .result-actions');
+            
+            elements.forEach((element, index) => {
+                element.style.opacity = 0;
+                element.style.transform = 'translateY(20px)';
+                element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                
+                setTimeout(() => {
+                    element.style.opacity = 1;
+                    element.style.transform = 'translateY(0)';
+                }, 100 + (index * 150));
+            });
+            
+            // Animate buttons separately with a delay
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach((button, index) => {
+                button.style.opacity = 0;
+                button.style.transform = 'translateY(10px)';
+                button.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                
+                setTimeout(() => {
+                    button.style.opacity = 1;
+                    button.style.transform = 'translateY(0)';
+                }, 800 + (index * 100));
+            });
+        }
+    </script>
+</body>
+</html> 

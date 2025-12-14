@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docuflex - Protected Access</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/professional.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Docuflex</span>
+                </a>
+                <p class="text-secondary">Document & Image Processing Tool</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mt-5">
+        <div class="card protected-container">
+            <div class="card-body text-center">
+                <i class="fas fa-lock mb-3" style="font-size: 60px; color: var(--danger);"></i>
+                <h2 class="mb-4">This Document is Password Protected</h2>
+                
+                <div class="file-info mb-4">
+                    <p><strong>File:</strong> {{ filename }}</p>
+                    <p><strong>Shared by:</strong> A Docuflex user</p>
+                    <p><strong>Protection:</strong> Password required to access this document</p>
+                </div>
+                
+                <p class="mb-4">Please enter the password that was shared with you to access this document.</p>
+                
+                <form action="{{ url_for('access_protected_document', share_id=share_id) }}" method="post" class="password-form">
+                    <div class="form-group">
+                        <label for="accessPassword" class="form-label">Access Password</label>
+                        <input type="password" id="accessPassword" name="password" class="form-control" placeholder="Enter document password" required>
+                    </div>
+                    
+                    {% if error %}
+                    <div class="alert alert-danger mt-3">{{ error }}</div>
+                    {% endif %}
+                    
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-unlock-alt"></i> Access Document
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Docuflex - Privacy-First Document Processing</p>
+                <p class="text-secondary mt-1">All processing is done in real-time. No files are stored permanently.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 

@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docuflex - Preview</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="logo">
+                <h1><i class="fas fa-file-alt"></i> Docuflex</h1>
+                <p>Document & Image Processing Tool</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="preview-section">
+            <div class="preview-card">
+                <div class="preview-header">
+                    <h2>Processing Complete</h2>
+                    <p>Your file is ready for download</p>
+                </div>
+                
+                <div class="file-details-preview">
+                    <div class="file-icon-large">
+                        {% if file_type == 'pdf' %}
+                            <i class="fas fa-file-pdf"></i>
+                        {% elif file_type == 'image' %}
+                            <i class="fas fa-file-image"></i>
+                        {% elif file_type == 'zip' %}
+                            <i class="fas fa-file-archive"></i>
+                        {% else %}
+                            <i class="fas fa-file"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="file-info-preview">
+                        <h3>{{ original_filename }}</h3>
+                        <ul class="file-details-list">
+                            <li><i class="fas fa-weight-hanging"></i> File Size: {{ file_size }}</li>
+                            <li><i class="fas fa-calendar-alt"></i> Created: {{ created_time }}</li>
+                            {% if file_type == 'pdf' and page_count %}
+                                <li><i class="fas fa-file-alt"></i> Pages: {{ page_count }}</li>
+                            {% endif %}
+                            {% if dimensions %}
+                                <li><i class="fas fa-ruler-combined"></i> Dimensions: {{ dimensions }}</li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="preview-actions">
+                    <a href="{{ download_url }}" class="download-btn">
+                        <i class="fas fa-download"></i> Download File
+                    </a>
+                    <a href="{{ url_for('home') }}" class="return-btn">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Docuflex - Privacy-First Document Processing</p>
+            <p class="privacy-notice">All processing is done in real-time. No files are stored permanently.</p>
+        </div>
+    </footer>
+</body>
+</html> 

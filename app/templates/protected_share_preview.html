@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docuflex - Protected Document Share</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/professional.css') }}">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <a href="/" class="logo">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Docuflex</span>
+                </a>
+                <p class="text-secondary">Document & Image Processing Tool</p>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mt-5">
+        <div class="card protected-container">
+            <div class="card-body text-center">
+                <div class="success-header mb-4">
+                    <i class="fas fa-check-circle success-icon" style="font-size: 60px; color: var(--success);"></i>
+                    <h2 class="mb-3">Document Shared Successfully</h2>
+                    <p>Your document has been password protected and is ready to share.</p>
+                </div>
+                
+                <div class="share-info-container mb-5">
+                    <div class="file-info mb-4">
+                        <p><strong>File:</strong> {{ filename }}</p>
+                        <p><strong>Access:</strong> Password protected</p>
+                        <p><strong>Expires:</strong> {{ expiry_time }}</p>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-4">
+                            <div class="qr-container">
+                                <img src="{{ qr_code_path }}" alt="QR Code for document access" class="mb-3">
+                                <button id="downloadQrBtn" class="btn btn-outline-primary btn-sm">
+                                    <i class="fas fa-download"></i> Download QR Code
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="share-details">
+                                <div class="share-item mb-3">
+                                    <label class="form-label">Share Link:</label>
+                                    <div class="input-group">
+                                        <input type="text" id="shareLink" class="form-control" value="{{ share_link }}" readonly>
+                                        <button id="copyLinkBtn" class="btn btn-primary">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="share-item mb-4">
+                                    <label class="form-label">Password:</label>
+                                    <div class="input-group">
+                                        <input type="text" id="password" class="form-control" value="{{ password }}" readonly>
+                                        <button id="copyPasswordBtn" class="btn btn-primary">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> Share both the link and password with your intended recipient.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="action-buttons">
+                    <a href="/" class="btn btn-primary me-2">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                    <a href="{{ url_for('home') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-share-alt"></i> Share Another Document
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer mt-5">
+        <div class="container">
+            <div class="footer-bottom">
+                <p>&copy; 2024 Docuflex - Privacy-First Document Processing</p>
+                <p class="text-secondary mt-1">All processing is done in real-time. No files are stored permanently.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Copy share link to clipboard
+        document.getElementById('copyLinkBtn').addEventListener('click', function() {
+            copyToClipboard('shareLink', this);
+        });
+        
+        // Copy password to clipboard
+        document.getElementById('copyPasswordBtn').addEventListener('click', function() {
+            copyToClipboard('password', this);
+        });
+        
+        // Download QR code
+        document.getElementById('downloadQrBtn').addEventListener('click', function() {
+            const qrImg = document.querySelector('.qr-container img');
+            const link = document.createElement('a');
+            link.href = qrImg.src;
+            link.download = 'docuflex_qr_code.png';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+        
+        function copyToClipboard(elementId, button) {
+            const element = document.getElementById(elementId);
+            element.select();
+            document.execCommand('copy');
+            
+            // Show feedback
+            const originalIcon = button.innerHTML;
+            button.innerHTML = '<i class="fas fa-check"></i>';
+            
+            setTimeout(function() {
+                button.innerHTML = originalIcon;
+            }, 1500);
+        }
+    </script>
+</body>
+</html> 

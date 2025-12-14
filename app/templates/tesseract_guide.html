@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docuflex - Tesseract OCR Installation Guide</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Add Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .guide-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .guide-header {
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .guide-section {
+            margin-bottom: 40px;
+        }
+        
+        .guide-section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+        
+        .guide-section-title i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .code-block {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            margin: 15px 0;
+            overflow-x: auto;
+            border-left: 4px solid var(--primary-color);
+        }
+        
+        .note-box {
+            background-color: #e1f5fe;
+            border-left: 4px solid #03a9f4;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        .note-box h4 {
+            color: #0277bd;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="/" class="navbar-brand">
+                    <i class="fas fa-file-alt text-primary"></i>
+                    <span>Docuflex</span>
+                </a>
+                <ul class="navbar-nav">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="#" class="nav-link">Tools</a></li>
+                    <li><a href="{{ url_for('documentation') }}" class="nav-link active">Documentation</a></li>
+                    <li><a href="/" class="btn btn-primary btn-sm">Get Started</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="guide-container">
+                <div class="guide-header">
+                    <h1>Tesseract OCR Installation Guide</h1>
+                    <p>Learn how to install and configure Tesseract OCR to use the OCR functionality in Docuflex</p>
+                </div>
+                
+                <div class="guide-section">
+                    <h2 class="guide-section-title">
+                        <i class="fas fa-info-circle"></i> Introduction
+                    </h2>
+                    <p>
+                        Tesseract OCR is an open-source optical character recognition engine that Docuflex uses to extract text from images and PDFs. 
+                        This guide will walk you through the installation process for different operating systems.
+                    </p>
+                </div>
+                
+                <div class="guide-section">
+                    <h2 class="guide-section-title">
+                        <i class="fab fa-windows"></i> Windows Installation
+                    </h2>
+                    <ol>
+                        <li>Download the installer from the UB Mannheim GitHub repository: <a href="https://github.com/UB-Mannheim/tesseract/wiki" target="_blank">https://github.com/UB-Mannheim/tesseract/wiki</a></li>
+                        <li>Run the installer and follow the on-screen instructions</li>
+                        <li>Make sure to check the option "Add to PATH" during installation</li>
+                        <li>Verify installation by opening Command Prompt and typing:</li>
+                    </ol>
+                    <div class="code-block">
+                        tesseract --version
+                    </div>
+                </div>
+                
+                <div class="guide-section">
+                    <h2 class="guide-section-title">
+                        <i class="fab fa-apple"></i> macOS Installation
+                    </h2>
+                    <p>The easiest way to install Tesseract on macOS is using Homebrew:</p>
+                    <ol>
+                        <li>Install Homebrew if you don't have it already:</li>
+                    </ol>
+                    <div class="code-block">
+                        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+                    </div>
+                    <ol start="2">
+                        <li>Install Tesseract OCR:</li>
+                    </ol>
+                    <div class="code-block">
+                        brew install tesseract
+                    </div>
+                    <ol start="3">
+                        <li>Verify installation:</li>
+                    </ol>
+                    <div class="code-block">
+                        tesseract --version
+                    </div>
+                </div>
+                
+                <div class="guide-section">
+                    <h2 class="guide-section-title">
+                        <i class="fab fa-linux"></i> Ubuntu/Debian Installation
+                    </h2>
+                    <p>Install Tesseract using apt:</p>
+                    <div class="code-block">
+                        sudo apt update<br>
+                        sudo apt install tesseract-ocr<br>
+                        sudo apt install libtesseract-dev
+                    </div>
+                    <p>Verify installation:</p>
+                    <div class="code-block">
+                        tesseract --version
+                    </div>
+                </div>
+                
+                <div class="guide-section">
+                    <h2 class="guide-section-title">
+                        <i class="fas fa-globe"></i> Installing Additional Languages
+                    </h2>
+                    <p>By default, Tesseract is installed with English language support. To install additional languages:</p>
+                    
+                    <h3>Windows</h3>
+                    <p>Download language data files from the <a href="https://github.com/tesseract-ocr/tessdata" target="_blank">Tesseract tessdata repository</a> and place them in the Tesseract tessdata directory (usually <code>C:\Program Files\Tesseract-OCR\tessdata</code>).</p>
+                    
+                    <h3>macOS</h3>
+                    <div class="code-block">
+                        brew install tesseract-lang
+                    </div>
+                    
+                    <h3>Ubuntu/Debian</h3>
+                    <div class="code-block">
+                        sudo apt install tesseract-ocr-all
+                    </div>
+                    <p>Or install specific languages:</p>
+                    <div class="code-block">
+                        sudo apt install tesseract-ocr-fra # French<br>
+                        sudo apt install tesseract-ocr-deu # German<br>
+                        sudo apt install tesseract-ocr-spa # Spanish
+                    </div>
+                </div>
+                
+                <div class="guide-section">
+                    <h2 class="guide-section-title">
+                        <i class="fas fa-exclamation-triangle"></i> Troubleshooting
+                    </h2>
+                    <div class="note-box">
+                        <h4>Common Issue: Tesseract Not Found</h4>
+                        <p>If you get an error like "tesseract is not recognized" or "Tesseract not installed", make sure:</p>
+                        <ul>
+                            <li>Tesseract is properly installed</li>
+                            <li>Tesseract is added to your system PATH</li>
+                            <li>You have restarted your terminal or command prompt after installation</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="guide-section">
+                    <h2 class="guide-section-title">
+                        <i class="fas fa-external-link-alt"></i> Additional Resources
+                    </h2>
+                    <ul>
+                        <li><a href="https://github.com/tesseract-ocr/tesseract" target="_blank">Tesseract GitHub Repository</a></li>
+                        <li><a href="https://tesseract-ocr.github.io/tessdoc/" target="_blank">Tesseract Documentation</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h4 class="footer-title">Docuflex</h4>
+                    <p>A powerful document and image processing tool designed for simplicity and efficiency.</p>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/" class="footer-link">Home</a></li>
+                        <li><a href="#" class="footer-link">Tools</a></li>
+                        <li><a href="{{ url_for('documentation') }}" class="footer-link">Documentation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@docuflex.com" class="footer-link">support@docuflex.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Docuflex - Privacy-First Document Processing</p>
+                <p>All processing is done in real-time. No files are stored permanently.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html> 

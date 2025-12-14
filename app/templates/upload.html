@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docuflex - Upload Document</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Add Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="/" class="navbar-brand">
+                    <i class="fas fa-file-alt text-primary"></i>
+                    <span>Docuflex</span>
+                </a>
+                <ul class="navbar-nav">
+                    <li><a href="/" class="nav-link active">Home</a></li>
+                    <li><a href="#" class="nav-link">Tools</a></li>
+                    <li><a href="#" class="nav-link">Documentation</a></li>
+                    <li><a href="#" class="btn btn-primary btn-sm">Get Started</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Left column: Upload Form -->
+                <div class="card flex-grow">
+                    <div class="card-header">
+                        <h2 class="card-title">Upload Document</h2>
+                        <p class="card-subtitle">Upload an image or document for OCR processing</p>
+                    </div>
+                    
+                    <div class="card-body">
+                        <!-- Upload Form -->
+                        <form id="uploadForm" action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data" class="upload-form">
+                            <div class="drop-area" id="dropArea">
+                                <div class="drop-message">
+                                    <i class="fas fa-cloud-upload-alt text-primary text-4xl mb-3"></i>
+                                    <h3>Drag & Drop Files Here</h3>
+                                    <p>or</p>
+                                    <label for="file" class="btn btn-secondary mt-3">
+                                        <i class="fas fa-file-upload"></i>
+                                        Browse Files
+                                    </label>
+                                    <input type="file" id="file" name="file" class="file-input" accept=".jpg, .jpeg, .png, .gif, .bmp, .pdf, .tiff, .webp" required>
+                                </div>
+                                <div class="file-preview-container" id="filePreview">
+                                    <div class="file-info">
+                                        <i class="fas fa-file-alt text-primary"></i>
+                                        <span class="file-name"></span>
+                                        <button type="button" class="remove-file" id="removeFile">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                    <div class="preview-image-container">
+                                        <img id="previewImage" src="" alt="Preview">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-divider">
+                                <span>OCR Options</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="language">OCR Language</label>
+                                <select name="language" id="language" class="form-select">
+                                    <option value="eng">English</option>
+                                    <option value="deu">German</option>
+                                    <option value="fra">French</option>
+                                    <option value="spa">Spanish</option>
+                                    <option value="ita">Italian</option>
+                                    <option value="por">Portuguese</option>
+                                    <option value="rus">Russian</option>
+                                    <option value="chi_sim">Chinese (Simplified)</option>
+                                    <option value="chi_tra">Chinese (Traditional)</option>
+                                    <option value="jpn">Japanese</option>
+                                    <option value="kor">Korean</option>
+                                    <option value="ara">Arabic</option>
+                                    <option value="hin">Hindi</option>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Preprocessing Options</label>
+                                <div class="checkbox-group">
+                                    <div class="form-check">
+                                        <input type="checkbox" name="grayscale" id="grayscale" checked class="form-check-input">
+                                        <label for="grayscale" class="form-check-label">Grayscale</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="denoise" id="denoise" class="form-check-input">
+                                        <label for="denoise" class="form-check-label">Denoise</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="contrast" id="contrast" class="form-check-input">
+                                        <label for="contrast" class="form-check-label">Enhance Contrast</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input type="checkbox" name="deskew" id="deskew" checked class="form-check-input">
+                                        <label for="deskew" class="form-check-label">Deskew</label>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Advanced options toggle -->
+                            <div class="form-group">
+                                <button type="button" class="btn btn-link" id="advancedOptionsToggle">
+                                    <i class="fas fa-cog"></i> Advanced Options
+                                    <i class="fas fa-chevron-down toggle-icon"></i>
+                                </button>
+                                
+                                <div id="advancedOptions" class="advanced-options" style="display:none;">
+                                    <div class="form-group">
+                                        <label for="psm">Page Segmentation Mode</label>
+                                        <select name="psm" id="psm" class="form-select">
+                                            <option value="3">Auto (Default)</option>
+                                            <option value="4">Single column of text</option>
+                                            <option value="6">Single uniform block of text</option>
+                                            <option value="1">Auto page segmentation with OSD</option>
+                                            <option value="0">Orientation and script detection only</option>
+                                            <option value="2">Auto page segmentation, no OSD or OCR</option>
+                                            <option value="5">Assume vertical text</option>
+                                            <option value="7">Single line</option>
+                                            <option value="8">Single word</option>
+                                            <option value="9">Single word in a circle</option>
+                                            <option value="10">Single character</option>
+                                            <option value="11">Sparse text</option>
+                                            <option value="12">Sparse text with OSD</option>
+                                            <option value="13">Raw line</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="oem">OCR Engine Mode</label>
+                                        <select name="oem" id="oem" class="form-select">
+                                            <option value="3">Default (LSTM + Legacy)</option>
+                                            <option value="1">LSTM only</option>
+                                            <option value="0">Legacy only</option>
+                                            <option value="2">LSTM + Legacy</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <div class="form-group">
+                                        <label for="custom_config">Custom Configuration</label>
+                                        <input type="text" name="custom_config" id="custom_config" class="form-input" placeholder="E.g. --tessdata-dir /path/to/tessdata">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary" id="submitButton">
+                                    <i class="fas fa-cog"></i>
+                                    Process Document
+                                </button>
+                                <button type="reset" class="btn btn-outline">
+                                    <i class="fas fa-undo"></i>
+                                    Reset
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <!-- Progress indicator -->
+                        <div id="progressContainer" class="progress-container" style="display:none;">
+                            <div class="flex gap-3 items-center mb-3">
+                                <div class="spinner"></div>
+                                <h3 class="mb-0" id="processingStatus">Processing document...</h3>
+                            </div>
+                            <div class="progress">
+                                <div class="progress-bar" id="progressBar" style="width: 0%"></div>
+                            </div>
+                            <p class="text-center mt-3">Please wait while we process your document...</p>
+                        </div>
+                        
+                        <!-- Error container -->
+                        <div id="errorContainer" class="error-container" style="display:none;">
+                            <div class="error-icon">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="error-content">
+                                <h3>Processing Error</h3>
+                                <p id="errorMessage">An error occurred while processing your document.</p>
+                                <div class="error-actions">
+                                    <button type="button" class="btn btn-primary btn-sm" id="retryButton">
+                                        <i class="fas fa-redo"></i>
+                                        Retry
+                                    </button>
+                                    <a href="{{ url_for('home') }}" class="btn btn-outline btn-sm">
+                                        <i class="fas fa-home"></i>
+                                        Go Home
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Right column: Info -->
+                <div class="card md:w-1/3">
+                    <div class="card-header">
+                        <h3 class="card-title">Processing Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="info-section">
+                            <h4><i class="fas fa-file-image text-primary"></i> Supported Formats</h4>
+                            <p>We support a wide range of image and document formats:</p>
+                            <div class="tag-container">
+                                <span class="tag">JPG</span>
+                                <span class="tag">PNG</span>
+                                <span class="tag">PDF</span>
+                                <span class="tag">TIFF</span>
+                                <span class="tag">BMP</span>
+                                <span class="tag">GIF</span>
+                                <span class="tag">WEBP</span>
+                            </div>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4><i class="fas fa-language text-primary"></i> Language Support</h4>
+                            <p>Docuflex supports OCR in multiple languages. Select the appropriate language for best results.</p>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4><i class="fas fa-cogs text-primary"></i> Preprocessing</h4>
+                            <p>Our preprocessing options enhance OCR accuracy:</p>
+                            <ul class="info-list">
+                                <li><strong>Grayscale:</strong> Converts color images to grayscale</li>
+                                <li><strong>Denoise:</strong> Removes noise from the image</li>
+                                <li><strong>Contrast Enhancement:</strong> Improves text visibility</li>
+                                <li><strong>Deskew:</strong> Straightens tilted images</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="info-section">
+                            <h4><i class="fas fa-lock text-primary"></i> Privacy First</h4>
+                            <p>All document processing is done locally. No files are stored permanently on our servers.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h4 class="footer-title">Docuflex</h4>
+                    <p>A powerful document and image processing tool designed for simplicity and efficiency.</p>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/" class="footer-link">Home</a></li>
+                        <li><a href="#" class="footer-link">Tools</a></li>
+                        <li><a href="#" class="footer-link">Documentation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@docuflex.com" class="footer-link">support@docuflex.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Docuflex - Privacy-First Document Processing</p>
+                <p>All processing is done in real-time. No files are stored permanently.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropArea = document.getElementById('dropArea');
+            const fileInput = document.getElementById('file');
+            const filePreview = document.getElementById('filePreview');
+            const previewImage = document.getElementById('previewImage');
+            const fileName = document.querySelector('.file-name');
+            const removeFile = document.getElementById('removeFile');
+            const uploadForm = document.getElementById('uploadForm');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const processingStatus = document.getElementById('processingStatus');
+            const errorContainer = document.getElementById('errorContainer');
+            const errorMessage = document.getElementById('errorMessage');
+            const retryButton = document.getElementById('retryButton');
+            const submitButton = document.getElementById('submitButton');
+            const advancedOptionsToggle = document.getElementById('advancedOptionsToggle');
+            const advancedOptions = document.getElementById('advancedOptions');
+            
+            // Initialize the page with animations
+            animatePageElements();
+            
+            // Toggle advanced options
+            advancedOptionsToggle.addEventListener('click', function() {
+                const toggleIcon = this.querySelector('.toggle-icon');
+                if (advancedOptions.style.display === 'none') {
+                    advancedOptions.style.display = 'block';
+                    slideDown(advancedOptions);
+                    toggleIcon.classList.remove('fa-chevron-down');
+                    toggleIcon.classList.add('fa-chevron-up');
+                } else {
+                    slideUp(advancedOptions);
+                    toggleIcon.classList.remove('fa-chevron-up');
+                    toggleIcon.classList.add('fa-chevron-down');
+                }
+            });
+            
+            // Drag & drop events
+            dropArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                dropArea.classList.add('drag-over');
+            });
+            
+            dropArea.addEventListener('dragleave', function() {
+                dropArea.classList.remove('drag-over');
+            });
+            
+            dropArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                dropArea.classList.remove('drag-over');
+                
+                const files = e.dataTransfer.files;
+                if (files.length) {
+                    fileInput.files = files;
+                    handleFileSelection(files[0]);
+                }
+            });
+            
+            // File input change
+            fileInput.addEventListener('change', function() {
+                if (this.files.length) {
+                    handleFileSelection(this.files[0]);
+                }
+            });
+            
+            // Remove file button
+            removeFile.addEventListener('click', function() {
+                resetFileInput();
+            });
+            
+            // Retry button
+            retryButton.addEventListener('click', function() {
+                errorContainer.style.display = 'none';
+                resetFileInput();
+            });
+            
+            // Form submission
+            uploadForm.addEventListener('submit', function(e) {
+                if (!fileInput.files.length) {
+                    e.preventDefault();
+                    showError('Please select a file to upload.');
+                    return;
+                }
+                
+                // Hide the form and show progress
+                uploadForm.style.display = 'none';
+                errorContainer.style.display = 'none';
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+                
+                // Simulate progress (in real implementation, this would be actual progress)
+                simulateProgress();
+            });
+            
+            // Handle file selection
+            function handleFileSelection(file) {
+                // Validate file type
+                const validFileTypes = [
+                    'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 
+                    'image/tiff', 'image/webp', 'application/pdf'
+                ];
+                
+                if (!validFileTypes.includes(file.type)) {
+                    resetFileInput();
+                    showError('Invalid file type. Please upload an image or PDF document.');
+                    return;
+                }
+                
+                // Display file info
+                fileName.textContent = file.name;
+                
+                // Preview image if it's an image file
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        previewImage.src = e.target.result;
+                        previewImage.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // For PDFs, show a PDF icon
+                    previewImage.src = "{{ url_for('static', filename='images/pdf_icon.png') }}";
+                    previewImage.style.display = 'block';
+                }
+                
+                // Show the file preview
+                dropArea.querySelector('.drop-message').style.display = 'none';
+                filePreview.style.display = 'block';
+                submitButton.disabled = false;
+            }
+            
+            // Reset file input
+            function resetFileInput() {
+                fileInput.value = '';
+                filePreview.style.display = 'none';
+                dropArea.querySelector('.drop-message').style.display = 'flex';
+                previewImage.src = '';
+                submitButton.disabled = true;
+            }
+            
+            // Show error message
+            function showError(message) {
+                errorContainer.style.display = 'flex';
+                errorMessage.textContent = message;
+            }
+            
+            // Simulate progress (for demo purposes)
+            function simulateProgress() {
+                let progress = 0;
+                const interval = setInterval(function() {
+                    progress += Math.random() * 10;
+                    
+                    if (progress >= 100) {
+                        progress = 100;
+                        clearInterval(interval);
+                        // Normally, this would be handled by the server response
+                        // For demo, we'll assume success
+                    }
+                    
+                    progressBar.style.width = progress + '%';
+                    
+                    if (progress < 30) {
+                        processingStatus.textContent = 'Processing document...';
+                    } else if (progress < 60) {
+                        processingStatus.textContent = 'Analyzing text...';
+                    } else if (progress < 90) {
+                        processingStatus.textContent = 'Finalizing results...';
+                    } else {
+                        processingStatus.textContent = 'Almost done...';
+                    }
+                }, 300);
+            }
+            
+            // Animation functions
+            function slideDown(element) {
+                element.style.opacity = 0;
+                element.style.maxHeight = '0';
+                element.style.overflow = 'hidden';
+                element.style.transition = 'opacity 0.3s ease, max-height 0.5s ease';
+                
+                setTimeout(() => {
+                    element.style.opacity = 1;
+                    element.style.maxHeight = '1000px';
+                }, 10);
+            }
+            
+            function slideUp(element) {
+                element.style.opacity = 1;
+                element.style.maxHeight = '1000px';
+                element.style.overflow = 'hidden';
+                element.style.transition = 'opacity 0.3s ease, max-height 0.5s ease';
+                
+                element.style.opacity = 0;
+                element.style.maxHeight = '0';
+                
+                setTimeout(() => {
+                    element.style.display = 'none';
+                    element.style.maxHeight = '';
+                    element.style.overflow = '';
+                }, 500);
+            }
+            
+            function animatePageElements() {
+                // Add entry animations to main elements
+                const elements = document.querySelectorAll('.card, .card-header, .upload-form, .info-section');
+                
+                elements.forEach((element, index) => {
+                    element.style.opacity = 0;
+                    element.style.transform = 'translateY(20px)';
+                    element.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    
+                    setTimeout(() => {
+                        element.style.opacity = 1;
+                        element.style.transform = 'translateY(0)';
+                    }, 100 + (index * 150));
+                });
+            }
+        });
+    </script>
+</body>
+</html> 

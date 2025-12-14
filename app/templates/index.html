@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docuflex - Document & Image Processing Tool</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Cropper.js for image cropping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <!-- Add Inter font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="navbar">
+                <a href="/" class="navbar-brand">
+                    <i class="fas fa-file-alt text-primary"></i>
+                    <span>Docuflex</span>
+                </a>
+                <ul class="navbar-nav">
+                    <li><a href="/" class="nav-link active">Home</a></li>
+                    <li><a href="#" class="nav-link">Tools</a></li>
+                    <li><a href="{{ url_for('documentation') }}" class="nav-link">Documentation</a></li>
+                    <li><a href="#" class="btn btn-primary btn-sm">Get Started</a></li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <!-- Hero Section -->
+            <section class="text-center mb-8">
+                <h1 class="mb-4">Document & Image Processing Tool</h1>
+                <p class="text-lg mb-6 text-secondary">Transform, convert, and manage your documents and images with our powerful tools.</p>
+            </section>
+
+            <!-- Upload Section -->
+            <section class="mb-8">
+                <div class="upload-zone" id="dragDropArea">
+                    <i class="fas fa-cloud-upload-alt upload-zone-icon"></i>
+                    <h3 class="upload-zone-text">Drag & Drop Files Here</h3>
+                    <p>or</p>
+                    <button class="btn btn-primary upload-zone-btn">Browse Files</button>
+                    <input type="file" id="fileInput" hidden>
+                    <p class="upload-zone-info">Supported formats: PDF, PNG, JPG, JPEG, GIF, WEBP</p>
+                </div>
+                <div class="file-preview" id="filePreview" hidden>
+                    <div class="file-info">
+                        <div class="file-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="file-details">
+                            <h4 id="fileName">document.pdf</h4>
+                            <p id="fileType">PDF Document</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-icon btn-ghost" id="clearFile">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </section>
+
+            <!-- Tool Selection -->
+            <section class="tool-selection">
+                <h2 class="text-center mb-6">Select Tool Type</h2>
+                <div class="tool-nav">
+                    <button class="tool-nav-item" id="pdfToolsBtn">
+                        <i class="fas fa-file-pdf"></i>
+                        PDF Tools
+                    </button>
+                    <button class="tool-nav-item" id="imageToolsBtn">
+                        <i class="fas fa-image"></i>
+                        Image Tools
+                    </button>
+                    <button class="tool-nav-item" id="documentToolsBtn">
+                        <i class="fas fa-file-alt"></i>
+                        Document Tools
+                    </button>
+                </div>
+            </section>
+
+            <!-- PDF Tools Panel -->
+            <section id="pdfToolsPanel" hidden>
+                <h2 class="text-center mb-6">PDF Tools</h2>
+                <div class="tool-grid">
+                    <div class="tool-card" id="mergePdf">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-object-group"></i>
+                        </div>
+                        <h3 class="tool-card-title">Merge PDFs</h3>
+                        <p class="tool-card-desc">Combine multiple PDF files into one</p>
+                    </div>
+                    <div class="tool-card" id="splitPdf">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-cut"></i>
+                        </div>
+                        <h3 class="tool-card-title">Split PDF</h3>
+                        <p class="tool-card-desc">Separate PDF pages or extract page ranges</p>
+                    </div>
+                    <div class="tool-card" id="compressPdf">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-compress-arrows-alt"></i>
+                        </div>
+                        <h3 class="tool-card-title">Compress PDF</h3>
+                        <p class="tool-card-desc">Reduce PDF file size</p>
+                    </div>
+                    <div class="tool-card" id="wordToPdf">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-file-word"></i>
+                        </div>
+                        <h3 class="tool-card-title">Word to PDF</h3>
+                        <p class="tool-card-desc">Convert Word documents to PDF format</p>
+                    </div>
+                    <div class="tool-card" id="excelToPdf">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-file-excel"></i>
+                        </div>
+                        <h3 class="tool-card-title">Excel to PDF</h3>
+                        <p class="tool-card-desc">Convert Excel spreadsheets to PDF format</p>
+                    </div>
+                    <div class="tool-card" id="pdfToImages">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-file-image"></i>
+                        </div>
+                        <h3 class="tool-card-title">PDF to Images</h3>
+                        <p class="tool-card-desc">Convert PDF pages to image files</p>
+                    </div>
+                    <div class="tool-card" id="imagesToPdf">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-images"></i>
+                        </div>
+                        <h3 class="tool-card-title">JPG to PDF</h3>
+                        <p class="tool-card-desc">Convert JPG images to PDF format</p>
+                    </div>
+                    <div class="tool-card" id="addPdfWatermark">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-stamp"></i>
+                        </div>
+                        <h3 class="tool-card-title">Add Watermark</h3>
+                        <p class="tool-card-desc">Apply text watermark to PDF pages</p>
+                    </div>
+                    <div class="tool-card" id="unlockPdf">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-unlock"></i>
+                        </div>
+                        <h3 class="tool-card-title">Unlock PDF</h3>
+                        <p class="tool-card-desc">Remove password protection from PDF</p>
+                    </div>
+                    <div class="tool-card" id="lockPdf">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3 class="tool-card-title">Lock PDF</h3>
+                        <p class="tool-card-desc">Add password protection to PDF</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Image Tools Panel -->
+            <section id="imageToolsPanel" hidden>
+                <h2 class="text-center mb-6">Image Tools</h2>
+                <div class="tool-grid">
+                    <div class="tool-card" id="compressImage">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-compress-arrows-alt"></i>
+                        </div>
+                        <h3 class="tool-card-title">Compress Image</h3>
+                        <p class="tool-card-desc">Reduce image file size</p>
+                    </div>
+                    <div class="tool-card" id="resizeImage">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-expand-arrows-alt"></i>
+                        </div>
+                        <h3 class="tool-card-title">Resize Image</h3>
+                        <p class="tool-card-desc">Change image dimensions</p>
+                    </div>
+                    <div class="tool-card" id="cropImage">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-crop-alt"></i>
+                        </div>
+                        <h3 class="tool-card-title">Crop Image</h3>
+                        <p class="tool-card-desc">Remove unwanted parts of an image</p>
+                    </div>
+                    <div class="tool-card" id="convertToJpg">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <h3 class="tool-card-title">Convert to JPG</h3>
+                        <p class="tool-card-desc">Convert images to JPG format</p>
+                    </div>
+                    <div class="tool-card" id="convertFromJpg">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-exchange-alt"></i>
+                        </div>
+                        <h3 class="tool-card-title">Convert from JPG</h3>
+                        <p class="tool-card-desc">Convert JPG to other image formats</p>
+                    </div>
+                    <div class="tool-card" id="removeBackground">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-eraser"></i>
+                        </div>
+                        <h3 class="tool-card-title">Remove Background</h3>
+                        <p class="tool-card-desc">Make image background transparent</p>
+                    </div>
+                    <div class="tool-card" id="addImageWatermark">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-stamp"></i>
+                        </div>
+                        <h3 class="tool-card-title">Add Watermark</h3>
+                        <p class="tool-card-desc">Apply text watermark to images</p>
+                    </div>
+                    <div class="tool-card" id="imageToPdf">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-file-pdf"></i>
+                        </div>
+                        <h3 class="tool-card-title">Image to PDF</h3>
+                        <p class="tool-card-desc">Convert images to PDF files</p>
+                    </div>
+                    <div class="tool-card" id="batchImageProcessing">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <h3 class="tool-card-title">Batch Processing</h3>
+                        <p class="tool-card-desc">Process multiple images at once</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Document Tools Panel -->
+            <section id="documentToolsPanel" hidden>
+                <h2 class="text-center mb-6">Document Tools</h2>
+                <div class="tool-grid">
+                    <div class="tool-card" id="shareDocument">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-share-alt"></i>
+                        </div>
+                        <h3 class="tool-card-title">Share Document</h3>
+                        <p class="tool-card-desc">Generate QR code for sharing files</p>
+                    </div>
+                    <div class="tool-card" id="protectedShareDocument">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <h3 class="tool-card-title">Protected Share</h3>
+                        <p class="tool-card-desc">Share files with password protection</p>
+                    </div>
+                    <div class="tool-card" id="ocrDocument">
+                        <div class="tool-card-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <h3 class="tool-card-title">OCR Document</h3>
+                        <p class="tool-card-desc">Extract text from PDF or image files</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Tool Forms - Will be updated dynamically with JavaScript -->
+            <!-- Merge PDFs Form -->
+            <section class="tool-form" id="mergePdfForm" hidden>
+                <div class="tool-form-header">
+                    <h2>Merge PDFs</h2>
+                    <p>Combine multiple PDF files into a single document</p>
+                </div>
+                <form action="/pdf/merge" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label" for="pdfFiles">Select PDF Files to Merge (2 or more)</label>
+                        <input type="file" id="pdfFiles" name="files[]" multiple accept=".pdf" required class="form-control">
+                    </div>
+                    <div class="tool-form-footer">
+                        <button type="button" class="btn btn-outline" onclick="hideToolForm('mergePdfForm')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Merge PDFs</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- Split PDF Form -->
+            <section class="tool-form" id="splitPdfForm" hidden>
+                <div class="tool-form-header">
+                    <h2>Split PDF</h2>
+                    <p>Separate PDF pages or extract page ranges</p>
+                </div>
+                <form action="/pdf/split" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label" for="pdfFile">Select PDF File to Split</label>
+                        <input type="file" id="pdfFile" name="file" accept=".pdf" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="pageRanges">Page Ranges (Optional)</label>
+                        <input type="text" id="pageRanges" name="page_ranges" class="form-control" placeholder="e.g., 1-3,5-7,9">
+                        <p class="form-text">Leave empty to split into individual pages. Otherwise, specify ranges like "1-3,5-7,9".</p>
+                    </div>
+                    <div class="tool-form-footer">
+                        <button type="button" class="btn btn-outline" onclick="hideToolForm('splitPdfForm')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Split PDF</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- Compress PDF Form -->
+            <section class="tool-form" id="compressPdfForm" hidden>
+                <div class="tool-form-header">
+                    <h2>Compress PDF</h2>
+                    <p>Reduce PDF file size</p>
+                </div>
+                <form action="/pdf/compress" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label" for="pdfToCompress">Select PDF File to Compress</label>
+                        <input type="file" id="pdfToCompress" name="file" accept=".pdf" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Compression Quality</label>
+                        <div class="radio-group">
+                            <div class="form-check">
+                                <input type="radio" name="quality" id="qualityLow" value="low" class="form-check-input">
+                                <label for="qualityLow" class="form-check-label">Low (Smallest file size)</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="quality" id="qualityMedium" value="medium" checked class="form-check-input">
+                                <label for="qualityMedium" class="form-check-label">Medium (Balanced)</label>
+                            </div>
+                            <div class="form-check">
+                                <input type="radio" name="quality" id="qualityHigh" value="high" class="form-check-input">
+                                <label for="qualityHigh" class="form-check-label">High (Better quality)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tool-form-footer">
+                        <button type="button" class="btn btn-outline" onclick="hideToolForm('compressPdfForm')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Compress PDF</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- PDF to Images Form -->
+            <section class="tool-form" id="pdfToImagesForm" hidden>
+                <div class="tool-form-header">
+                    <h2>PDF to Images</h2>
+                    <p>Convert PDF pages to image files</p>
+                </div>
+                <form action="/pdf/to-images" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label" for="pdfForImages">Select PDF File</label>
+                        <input type="file" id="pdfForImages" name="file" accept=".pdf" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="dpi">Image Quality (DPI)</label>
+                        <select id="dpi" name="dpi" class="form-select">
+                            <option value="100">Low (100 DPI)</option>
+                            <option value="200" selected>Medium (200 DPI)</option>
+                            <option value="300">High (300 DPI)</option>
+                            <option value="600">Very High (600 DPI)</option>
+                        </select>
+                    </div>
+                    <div class="tool-form-footer">
+                        <button type="button" class="btn btn-outline" onclick="hideToolForm('pdfToImagesForm')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Convert to Images</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- OCR Document Form -->
+            <section class="tool-form" id="ocrDocumentForm" hidden>
+                <div class="tool-form-header">
+                    <h2>OCR Document</h2>
+                    <p>Extract text from PDF or image files</p>
+                </div>
+                <form action="/document/ocr" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label" for="ocrFile">Select File for OCR</label>
+                        <input type="file" id="ocrFile" name="file" accept=".pdf,.jpg,.jpeg,.png,.tiff,.bmp,.gif" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="ocrLanguage">OCR Language</label>
+                        <select id="ocrLanguage" name="language" class="form-select">
+                            <option value="eng" selected>English</option>
+                            <option value="fra">French</option>
+                            <option value="deu">German</option>
+                            <option value="spa">Spanish</option>
+                            <option value="ita">Italian</option>
+                            <option value="por">Portuguese</option>
+                            <option value="rus">Russian</option>
+                            <option value="chi_sim">Chinese (Simplified)</option>
+                            <option value="jpn">Japanese</option>
+                            <option value="kor">Korean</option>
+                            <option value="ara">Arabic</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="preprocess" name="preprocess" class="form-check-input" checked>
+                            <label for="preprocess" class="form-check-label">Apply image preprocessing (recommended)</label>
+                        </div>
+                    </div>
+                    <div class="tool-form-footer">
+                        <button type="button" class="btn btn-outline" onclick="hideToolForm('ocrDocumentForm')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Extract Text</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- Share Document Form -->
+            <section class="tool-form" id="shareDocumentForm" hidden>
+                <div class="tool-form-header">
+                    <h2>Share Document</h2>
+                    <p>Generate QR code for sharing files</p>
+                </div>
+                <form action="/document/share" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label" for="fileToShare">Select File to Share</label>
+                        <input type="file" id="fileToShare" name="file" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <div class="form-check">
+                            <input type="checkbox" id="generateQr" name="generate_qr" class="form-check-input" checked>
+                            <label for="generateQr" class="form-check-label">Generate QR code</label>
+                        </div>
+                    </div>
+                    <div class="tool-form-footer">
+                        <button type="button" class="btn btn-outline" onclick="hideToolForm('shareDocumentForm')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Share Document</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- Protected Share Document Form -->
+            <section class="tool-form" id="protectedShareDocumentForm" hidden>
+                <div class="tool-form-header">
+                    <h2>Protected Share</h2>
+                    <p>Share files with password protection</p>
+                </div>
+                <form action="/document/protected-share" method="post" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label class="form-label" for="fileToProtect">Select File to Share</label>
+                        <input type="file" id="fileToProtect" name="file" required class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label" for="password">Password</label>
+                        <input type="text" id="password" name="password" class="form-control" placeholder="Enter password or leave empty to generate one">
+                        <p class="form-text">Leave empty to auto-generate a secure password.</p>
+                    </div>
+                    <div class="tool-form-footer">
+                        <button type="button" class="btn btn-outline" onclick="hideToolForm('protectedShareDocumentForm')">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Share Securely</button>
+                    </div>
+                </form>
+            </section>
+            
+            <!-- Additional tool forms would be added following the same pattern -->
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-col">
+                    <h4 class="footer-title">Docuflex</h4>
+                    <p>A powerful document and image processing tool designed for simplicity and efficiency.</p>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Quick Links</h4>
+                    <ul class="footer-links">
+                        <li><a href="/" class="footer-link">Home</a></li>
+                        <li><a href="#" class="footer-link">Tools</a></li>
+                        <li><a href="{{ url_for('documentation') }}" class="footer-link">Documentation</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4 class="footer-title">Contact</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:support@docuflex.com" class="footer-link">support@docuflex.com</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Docuflex - Privacy-First Document Processing</p>
+                <p>All processing is done in real-time. No files are stored permanently.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Processing Overlay -->
+    <div class="processing-overlay" id="processingOverlay" style="display: none;">
+        <div class="processing-card">
+            <div class="processing-spinner"></div>
+            <h4 class="processing-text">Processing...</h4>
+            <p class="processing-desc">Please wait while we process your file.</p>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html> 

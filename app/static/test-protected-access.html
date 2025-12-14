@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Protected Access</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #3498db;
+        }
+        .test-link {
+            display: block;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+            word-break: break-all;
+        }
+        .note {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffcc00;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        code {
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>Test Protected Access</h1>
+    
+    <p>This page demonstrates how to use the password-protection.html page for protecting file access with a password.</p>
+    
+    <h2>Example Protected URL</h2>
+    
+    <p>The following link points to an example file that is protected with the password <code>testpassword</code>:</p>
+    
+    <a href="password-protection.html#aHR0cHM6Ly9kdW1teS1maWxlLmNvbS9zYW1wbGUucGRm:test-id:testpassword" class="test-link">
+        password-protection.html#aHR0cHM6Ly9kdW1teS1maWxlLmNvbS9zYW1wbGUucGRm:test-id:testpassword
+    </a>
+    
+    <div class="note">
+        <p><strong>Note:</strong> The URL format is:</p>
+        <p><code>password-protection.html#[encoded-file-url]:[share-id]:[password]</code></p>
+        <p>Where:</p>
+        <ul>
+            <li><code>[encoded-file-url]</code> is the Base64-encoded URL of the file</li>
+            <li><code>[share-id]</code> is a unique identifier for the share</li>
+            <li><code>[password]</code> is the password to access the file</li>
+        </ul>
+    </div>
+    
+    <h2>How It Works</h2>
+    
+    <ol>
+        <li>When a user clicks on the protected URL, they are taken to the password-protection.html page.</li>
+        <li>The page extracts the encoded file URL, share ID, and password from the hash fragment in the URL.</li>
+        <li>The user is prompted to enter the password.</li>
+        <li>If the password matches, the user is redirected to the actual file URL.</li>
+        <li>If the password doesn't match, an error message is displayed.</li>
+    </ol>
+    
+    <p>This mechanism works entirely client-side and doesn't require server-side processing for the password verification.</p>
+</body>
+</html> 
